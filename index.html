@@ -1,1 +1,2151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Masmorras do Abismo</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0608;
+  --bg2: #110c0e;
+  --bg3: #1a1014;
+  --panel: #160d10;
+  --border: #4a2030;
+  --border2: #7a3040;
+  --gold: #c9a227;
+  --gold2: #f0c040;
+  --red: #c0392b;
+  --red2: #e74c3c;
+  --green: #2ecc71;
+  --blue: #3498db;
+  --purple: #9b59b6;
+  --text: #e8d5b0;
+  --text2: #b89060;
+  --muted: #6b4a30;
+  --hp-bar: #c0392b;
+  --mp-bar: #2980b9;
+  --xp-bar: #c9a227;
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  font-family: 'Crimson Text', Georgia, serif;
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+.screen { display: none; width: 100vw; height: 100vh; }
+.screen.active { display: flex; }
+
+/* === TELA INICIAL === */
+#screen-title {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a0810 0%, #0a0608 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+.title-particles { position: absolute; inset: 0; pointer-events: none; }
+
+.spark {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: float-spark linear infinite;
+  opacity: 0;
+}
+
+@keyframes float-spark {
+  0% { opacity: 0; transform: translateY(0) scale(0); }
+  10% { opacity: 1; }
+  90% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-100vh) scale(1); }
+}
+
+.title-sigil {
+  font-size: 80px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px #c9a22788);
+  animation: sigil-pulse 3s ease-in-out infinite;
+}
+
+@keyframes sigil-pulse {
+  0%, 100% { filter: drop-shadow(0 0 20px #c9a22788); }
+  50% { filter: drop-shadow(0 0 40px #c9a227cc); }
+}
+
+.title-main {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 30px #c9a22766, 0 2px 0 #000;
+  margin-bottom: 8px;
+}
+
+.title-sub {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(12px, 2vw, 18px);
+  color: var(--text2);
+  letter-spacing: 0.3em;
+  margin-bottom: 50px;
+}
+
+.title-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(340px, 90vw);
+}
+
+.title-input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 14px 18px;
+  font-family: 'Crimson Text', serif;
+  font-size: 18px;
+  border-radius: 4px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.title-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px #c9a22733;
+}
+
+.class-select {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.class-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 12px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: 'Crimson Text', serif;
+  font-size: 15px;
+  transition: all 0.2s;
+  text-align: center;
+}
+.class-btn .class-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+.class-btn:hover, .class-btn.selected {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: #1e1010;
+  box-shadow: 0 0 10px #c9a22733;
+}
+
+.btn-start {
+  width: 100%;
+  background: linear-gradient(135deg, #7a2020 0%, #4a1010 100%);
+  border: 1px solid var(--border2);
+  color: var(--gold);
+  padding: 16px;
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+.btn-start:hover {
+  background: linear-gradient(135deg, #a03030 0%, #601515 100%);
+  box-shadow: 0 0 25px #c9a22755;
+  transform: translateY(-1px);
+}
+
+/* === TELA DO JOGO === */
+#screen-game {
+  flex-direction: row;
+  gap: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.panel-left {
+  width: 280px;
+  min-width: 220px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.panel-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-right {
+  width: 220px;
+  min-width: 180px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.panel-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--text2);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+/* MINIMAP MELHORADO */
+.minimap-wrap {
+  position: relative;
+}
+
+.minimap {
+  display: grid;
+  gap: 3px;
+  margin: 4px auto;
+}
+
+.mm-cell {
+  width: 20px; height: 20px;
+  border-radius: 3px;
+  border: 1px solid #2a1a1e;
+  transition: all 0.4s ease;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+}
+.mm-cell.wall { background: #0e0608; }
+.mm-cell.floor { background: #1e1215; }
+.mm-cell.visited { background: #261820; border-color: var(--border); }
+.mm-cell.current {
+  background: var(--gold);
+  border-color: var(--gold2);
+  box-shadow: 0 0 8px #c9a22799;
+  animation: pulse-cell 1.5s ease-in-out infinite;
+}
+@keyframes pulse-cell {
+  0%,100% { box-shadow: 0 0 6px #c9a22799; }
+  50% { box-shadow: 0 0 14px #c9a227cc; }
+}
+.mm-cell.boss { background: #400010; border-color: #800020; }
+.mm-cell.treasure { background: #2a2000; border-color: #5a4400; }
+.mm-cell.stairs { background: #0a2040; border-color: #1a4080; }
+.mm-cell.shop { background: #1a2800; border-color: #3a5000; }
+.mm-cell.shrine { background: #1a1040; border-color: #3a3080; }
+.mm-cell.trap { background: #2a1000; border-color: #5a2000; }
+.mm-cell.fog { background: #0e080a; border-color: #1a0e12; }
+/* Conexões entre salas */
+.mm-connector-h {
+  height: 6px; width: 3px;
+  background: #3a2025;
+  position: absolute;
+  right: -3px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+.mm-connector-v {
+  width: 6px; height: 3px;
+  background: #3a2025;
+  position: absolute;
+  bottom: -3px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.mm-connector-h.active { background: #6a4050; }
+.mm-connector-v.active { background: #6a4050; }
+
+.minimap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.legend-item { display: flex; align-items: center; gap: 3px; }
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  border: 1px solid #3a2025;
+}
+
+/* STAT BARS */
+.stat-row { margin-bottom: 6px; }
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 3px;
+}
+.bar-track {
+  height: 8px;
+  background: #200a10;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #3a1020;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.bar-hp { background: linear-gradient(90deg, #8b1a1a, var(--hp-bar)); box-shadow: 0 0 6px #c0392b66; }
+.bar-mp { background: linear-gradient(90deg, #1a3a8b, var(--mp-bar)); box-shadow: 0 0 6px #2980b966; }
+.bar-xp { background: linear-gradient(90deg, #7a6000, var(--xp-bar)); box-shadow: 0 0 6px #c9a22766; }
+
+.player-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2px;
+}
+.player-class {
+  font-size: 12px;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  font-size: 13px;
+}
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text2);
+}
+.stat-item span:last-child { color: var(--text); font-weight: 600; }
+
+/* ÁREA DE CENA */
+.scene-area {
+  flex: 1;
+  background: var(--bg2);
+  padding: 16px 20px;
+  overflow-y: auto;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+
+.scene-header {
+  font-family: 'Cinzel', serif;
+  font-size: 17px;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scene-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* INIMIGOS */
+.enemies-display {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.enemy-card {
+  background: #1e0a10;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 110px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.enemy-card:hover { border-color: var(--red2); box-shadow: 0 0 12px #c0392b44; transform: translateY(-2px); }
+.enemy-card.dead { opacity: 0.3; pointer-events: none; }
+.enemy-card.targeted { border-color: var(--red2); box-shadow: 0 0 15px #c0392b66; }
+.enemy-icon { font-size: 30px; display: block; margin-bottom: 4px; }
+.enemy-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--red2); font-weight: 700; margin-bottom: 4px; }
+.enemy-hp-bar { height: 5px; background: #400; border-radius: 2px; overflow: hidden; }
+.enemy-hp-fill { height: 100%; background: var(--red); transition: width 0.3s; }
+
+/* LOOT */
+.room-loot {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.loot-item {
+  background: #1a1800;
+  border: 1px solid #3a3000;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+}
+.loot-item:hover { border-color: var(--gold); background: #252000; box-shadow: 0 0 10px #c9a22733; }
+
+/* LOG */
+.log-area {
+  height: 130px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 8px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.log-entry {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 1px 0;
+  animation: log-in 0.3s ease;
+}
+@keyframes log-in { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: none; } }
+.log-entry.player { color: #a0d0ff; }
+.log-entry.enemy { color: #ff8080; }
+.log-entry.item { color: var(--gold); }
+.log-entry.event { color: #b0b0b0; font-style: italic; }
+.log-entry.danger { color: var(--red2); font-weight: 600; }
+.log-entry.success { color: var(--green); }
+
+/* AÇÕES */
+.action-bar {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* SELETOR DE ATAQUE */
+.attack-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: #1a0c10;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+  z-index: 100;
+  box-shadow: 0 -4px 20px #00000099;
+}
+.attack-menu.open { display: flex; }
+.attack-option {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  transition: all 0.15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.attack-option:hover { border-color: var(--red2); color: var(--red2); background: #200a10; }
+.attack-option .atk-dmg { font-size: 12px; color: var(--text2); white-space: nowrap; }
+.attack-option .atk-mp { font-size: 11px; color: var(--blue); margin-left: 4px; }
+
+.btn-group { position: relative; }
+
+.btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.btn:disabled { opacity: 0.3; cursor: default; }
+.btn.btn-attack { border-color: var(--red); color: var(--red); }
+.btn.btn-attack:hover:not(:disabled) { background: #300; box-shadow: 0 0 10px #c0392b44; }
+.btn.btn-skill { border-color: var(--blue); color: var(--blue); }
+.btn.btn-skill:hover:not(:disabled) { background: #002030; box-shadow: 0 0 10px #2980b944; }
+.btn.btn-move { border-color: var(--border2); color: var(--text2); }
+.btn.btn-move:hover:not(:disabled) { border-color: var(--gold2); color: var(--gold2); }
+.btn.btn-heal { border-color: var(--green); color: var(--green); }
+.btn.btn-heal:hover:not(:disabled) { background: #003010; }
+
+/* SETAS DE DIREÇÃO */
+.direction-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(3, 28px);
+  gap: 3px;
+}
+.dir-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  position: relative;
+}
+.dir-btn:hover:not(:disabled) { border-color: var(--gold2); color: var(--gold2); background: #1a1000; }
+.dir-btn:disabled { opacity: 0.18; cursor: default; }
+.dir-btn.active-dir { border-color: var(--gold); color: var(--gold); background: #1e1400; }
+.dir-btn .dir-label {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+/* INVENTÁRIO */
+.inv-slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.inv-slot {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: all 0.2s;
+  text-align: center;
+  position: relative;
+}
+.inv-slot:empty-slot { border-style: dashed; opacity: 0.4; }
+.inv-slot.filled { border-color: var(--border2); }
+.inv-slot.filled:hover { border-color: var(--gold); box-shadow: 0 0 8px #c9a22733; }
+.inv-slot .item-icon { font-size: 20px; }
+.inv-slot .item-name { font-size: 11px; color: var(--text2); line-height: 1.2; }
+.inv-slot.equipped { border-color: var(--gold); background: #1a1000; }
+.inv-slot.equipped .item-name { color: var(--gold); }
+.equipped-tag {
+  position: absolute;
+  top: 2px; right: 2px;
+  font-size: 9px;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+}
+
+/* RARITY COLORS */
+.rarity-comum { color: var(--text2); }
+.rarity-incomum { color: #4cbb5c; }
+.rarity-raro { color: #3a8cdb; }
+.rarity-epico { color: #9b59b6; }
+.rarity-lendario { color: #c9a227; text-shadow: 0 0 8px #c9a22788; }
+
+/* TOOLTIP */
+.tooltip {
+  position: fixed;
+  background: #1a0c10;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  max-width: 200px;
+  pointer-events: none;
+  z-index: 999;
+  display: none;
+  box-shadow: 0 4px 20px #00000088;
+}
+.tooltip-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--gold); margin-bottom: 4px; font-weight: 700; }
+.tooltip-desc { color: var(--text); font-style: italic; margin-bottom: 4px; }
+.tooltip-stat { color: var(--green); font-size: 12px; }
+
+/* BOSS HEALTH */
+.boss-bar {
+  display: none;
+  background: #1e0008;
+  border: 1px solid #800020;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+.boss-name { font-family: 'Cinzel', serif; font-size: 14px; color: #ff4060; font-weight: 700; margin-bottom: 4px; text-align: center; }
+.boss-hp-track { height: 10px; background: #400010; border-radius: 5px; overflow: hidden; }
+.boss-hp-fill { height: 100%; background: linear-gradient(90deg, #800020, #ff0040); transition: width 0.4s; box-shadow: 0 0 10px #ff004066; }
+
+/* MODAIS */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--panel);
+  border: 2px solid var(--border2);
+  border-radius: 8px;
+  padding: 32px 40px;
+  text-align: center;
+  max-width: 420px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+.modal-title.death { color: var(--red); text-shadow: 0 0 20px #c0392b88; }
+.modal-title.levelup { color: var(--gold); text-shadow: 0 0 20px #c9a22788; }
+.modal-title.victory { color: var(--green); text-shadow: 0 0 20px #2ecc7188; }
+.modal-text { color: var(--text); font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
+.modal-btn {
+  background: linear-gradient(135deg, #6a1a1a, #3a0808);
+  border: 1px solid var(--border2);
+  color: var(--gold);
+  padding: 12px 28px;
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin: 4px;
+}
+.modal-btn:hover { box-shadow: 0 0 20px #c9a22755; transform: translateY(-1px); }
+.modal-btn.secondary { background: var(--bg2); color: var(--text2); }
+
+.floor-badge {
+  display: inline-block;
+  background: #1a0810;
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--text2);
+  letter-spacing: 0.1em;
+}
+
+/* DANO FLUTUANTE */
+.dmg-float {
+  position: fixed;
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  pointer-events: none;
+  animation: dmg-up 1.2s ease forwards;
+  z-index: 800;
+}
+@keyframes dmg-up {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.7); }
+}
+
+/* EFEITO DE SALA */
+@keyframes room-enter {
+  from { opacity: 0; transform: translateX(15px); }
+  to { opacity: 1; transform: none; }
+}
+.room-enter { animation: room-enter 0.4s ease; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.depth-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--text2);
+  letter-spacing: 0.15em;
+  text-align: center;
+  opacity: 0.7;
+}
+
+@media (max-width: 700px) {
+  .panel-left { width: 180px; min-width: 140px; }
+  .panel-right { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="screen-title" class="screen active">
+  <div class="title-particles" id="sparks"></div>
+  <div class="title-sigil">⚔️</div>
+  <div class="title-main">Masmorras do Abismo</div>
+  <div class="title-sub">Uma jornada sem retorno</div>
+  <div class="title-form">
+    <input type="text" id="inp-name" class="title-input" placeholder="Nome do Herói" maxlength="18">
+    <div class="class-select" id="class-select">
+      <button class="class-btn selected" data-class="warrior" onclick="selectClass(this)">
+        <span class="class-icon">🛡️</span>Guerreiro
+      </button>
+      <button class="class-btn" data-class="mage" onclick="selectClass(this)">
+        <span class="class-icon">🔮</span>Mago
+      </button>
+      <button class="class-btn" data-class="rogue" onclick="selectClass(this)">
+        <span class="class-icon">🗡️</span>Ladino
+      </button>
+    </div>
+    <button class="btn-start" onclick="startGame()">Entrar na Masmorra</button>
+  </div>
+</div>
+
+<div id="screen-game" class="screen">
+  <div class="panel-left">
+    <div>
+      <div class="player-name" id="ui-pname">Herói</div>
+      <div class="player-class" id="ui-pclass">Guerreiro — Nível 1</div>
+    </div>
+
+    <div>
+      <div class="stat-row">
+        <div class="stat-label"><span>❤️ Vida</span><span id="ui-hp">100/100</span></div>
+        <div class="bar-track"><div class="bar-fill bar-hp" id="bar-hp" style="width:100%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label"><span>💧 Mana</span><span id="ui-mp">50/50</span></div>
+        <div class="bar-track"><div class="bar-fill bar-mp" id="bar-mp" style="width:100%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label"><span>✨ XP</span><span id="ui-xp">0/100</span></div>
+        <div class="bar-track"><div class="bar-fill bar-xp" id="bar-xp" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Atributos</div>
+      <div class="stat-grid">
+        <div class="stat-item"><span>⚔️ Atq</span><span id="ui-atk">10</span></div>
+        <div class="stat-item"><span>🛡️ Def</span><span id="ui-def">5</span></div>
+        <div class="stat-item"><span>🏃 Vel</span><span id="ui-spd">5</span></div>
+        <div class="stat-item"><span>✨ Mag</span><span id="ui-mag">2</span></div>
+        <div class="stat-item"><span>🍀 Sor</span><span id="ui-luk">3</span></div>
+        <div class="stat-item"><span>💰 Gold</span><span id="ui-gold">0</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Mapa — <span id="ui-floor">Andar 1</span></div>
+      <div class="minimap-wrap">
+        <div id="minimap" class="minimap"></div>
+      </div>
+      <div class="minimap-legend" id="minimap-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#c9a227"></div> Você</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#400010"></div> Boss</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2a2000"></div> Tesouro</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0a2040"></div> Escada</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0e080a"></div> Neblina</div>
+      </div>
+    </div>
+
+    <div class="depth-label" id="ui-depth">Profundidade: 1</div>
+  </div>
+
+  <div class="panel-center">
+    <div class="scene-area" id="scene-area">
+      <div class="boss-bar" id="boss-bar">
+        <div class="boss-name" id="boss-name">BOSS</div>
+        <div class="boss-hp-track"><div class="boss-hp-fill" id="boss-hp-fill" style="width:100%"></div></div>
+      </div>
+      <div class="scene-header">
+        <span id="scene-icon">🚪</span>
+        <span id="scene-title">Câmara de Entrada</span>
+        <span class="floor-badge" id="scene-badge">Sala 1</span>
+      </div>
+      <div class="scene-desc" id="scene-desc">Você adentra a masmorra.</div>
+      <div class="enemies-display" id="enemies-display"></div>
+      <div class="room-loot" id="room-loot"></div>
+    </div>
+
+    <div class="log-area" id="log-area"></div>
+
+    <div class="action-bar" id="action-bar">
+      <div class="btn-group" id="group-attack">
+        <div class="attack-menu" id="attack-menu"></div>
+        <button class="btn btn-attack" id="btn-attack" onclick="toggleAttackMenu()">⚔️ Atacar ▾</button>
+      </div>
+
+      <div class="btn-group" id="group-skill">
+        <div class="attack-menu" id="skill-menu"></div>
+        <button class="btn btn-skill" id="btn-skill" onclick="toggleSkillMenu()">✨ Habilidade ▾</button>
+      </div>
+
+      <button class="btn btn-heal" id="btn-heal" onclick="usePotion()">🧪 Poção</button>
+
+      <span style="flex:1"></span>
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div class="direction-pad" id="direction-pad">
+          <div></div>
+          <button class="dir-btn" id="dir-N" onclick="moveDir('N')" disabled>▲<span class="dir-label">Norte</span></button>
+          <div></div>
+          <button class="dir-btn" id="dir-W" onclick="moveDir('W')" disabled>◄<span class="dir-label">Oeste</span></button>
+          <div style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted)">✦</div>
+          <button class="dir-btn" id="dir-E" onclick="moveDir('E')" disabled>►<span class="dir-label">Leste</span></button>
+          <div></div>
+          <button class="dir-btn" id="dir-S" onclick="moveDir('S')" disabled>▼<span class="dir-label">Sul</span></button>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="panel-title">Equipamentos</div>
+    <div class="inv-slots" id="equip-slots"></div>
+    <div class="panel-title" style="margin-top:8px">Mochila</div>
+    <div class="inv-slots" id="bag-slots"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-death">
+  <div class="modal-box">
+    <div class="modal-title death">☠️ Você Morreu</div>
+    <div class="modal-text" id="death-text">Sua chama se apagou nas profundezas...</div>
+    <button class="modal-btn" onclick="location.reload()">Recomeçar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-levelup">
+  <div class="modal-box">
+    <div class="modal-title levelup">⬆️ Nível Acima!</div>
+    <div class="modal-text" id="levelup-text"></div>
+    <button class="modal-btn" onclick="closeLevelUp()">Continuar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-victory">
+  <div class="modal-box">
+    <div class="modal-title victory">🏆 Vitória!</div>
+    <div class="modal-text" id="victory-text"></div>
+    <button class="modal-btn" onclick="location.reload()">Jogar Novamente</button>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ============================================================
+// DADOS
+// ============================================================
+const CLASSES = {
+  warrior: {
+    name: 'Guerreiro',
+    icon: '🛡️',
+    hp: 120,
+    mp: 30,
+    atk: 14,
+    def: 8,
+    spd: 5,
+    mag: 1,
+    luk: 3,
+    skill: { name: 'Golpe Brutal', cost: 10, desc: 'Ataque poderoso causando 2x dano', fn: 'brutalStrike' },
+    weapon: { id: 'sword_iron', name: 'Espada de Ferro', icon: '⚔️', type: 'weapon', atk: 5, desc: 'Uma espada confiável.', val: 20 },
+    attacks: [
+      { name: 'Espadada', dmgMult: 1.0, mpCost: 0, desc: 'Ataque padrão', icon: '⚔️' },
+      { name: 'Golpe Devastador', dmgMult: 1.5, mpCost: 8, desc: 'Força bruta! +50% dano', icon: '💥' },
+      { name: 'Escudo-Golpe', dmgMult: 0.8, mpCost: 0, def_bonus: 3, desc: 'Defesa +3 nesse turno', icon: '🛡️' },
+      { name: 'Berserker', dmgMult: 2.0, mpCost: 0, self_dmg: 5, desc: '2x dano, recebe 5 de dano', icon: '🩸' },
+    ],
+    skills: [
+      { name: 'Golpe Brutal', fn: 'brutalStrike', cost: 10, desc: 'Causa 2× ATK de dano' },
+      { name: 'Grito de Guerra', fn: 'warCry', cost: 15, desc: 'Cura 20 HP e aumenta ATK' },
+      { name: 'Escudo Divino', fn: 'divineShield', cost: 20, desc: 'Reduz próx. dano em 80%' },
+    ]
+  },
+  mage: {
+    name: 'Mago',
+    icon: '🔮',
+    hp: 70,
+    mp: 80,
+    atk: 6,
+    def: 3,
+    spd: 5,
+    mag: 12,
+    luk: 4,
+    skill: { name: 'Bola de Fogo', cost: 15, desc: 'Queima todos os inimigos', fn: 'fireball' },
+    weapon: { id: 'staff_oak', name: 'Cajado de Carvalho', icon: '🪄', type: 'weapon', atk: 2, mag: 8, desc: 'Amplia o poder arcano.', val: 25 },
+    attacks: [
+      { name: 'Raio Arcano', dmgMult: 1.0, mpCost: 0, desc: 'Descarga mágica básica', icon: '⚡' },
+      { name: 'Míssil Mágico', dmgMult: 1.3, mpCost: 6, desc: '+30% dano, usa MAG', icon: '✨' },
+      { name: 'Flecha de Gelo', dmgMult: 0.9, mpCost: 5, slow: true, desc: 'Reduz ATK inimigo', icon: '❄️' },
+      { name: 'Relâmpago', dmgMult: 1.8, mpCost: 14, desc: '1.8× dano mágico puro', icon: '⚡' },
+    ],
+    skills: [
+      { name: 'Bola de Fogo', fn: 'fireball', cost: 15, desc: 'Atinge TODOS os inimigos' },
+      { name: 'Drenagem', fn: 'drain', cost: 12, desc: 'Rouba vida de 1 inimigo' },
+      { name: 'Meteoro', fn: 'meteor', cost: 30, desc: '3× MAG em todos os inimigos' },
+    ]
+  },
+  rogue: {
+    name: 'Ladino',
+    icon: '🗡️',
+    hp: 85,
+    mp: 45,
+    atk: 12,
+    def: 4,
+    spd: 9,
+    mag: 2,
+    luk: 8,
+    skill: { name: 'Ataque Furtivo', cost: 12, desc: 'Ignora defesa e causa dano crítico', fn: 'shadowStrike' },
+    weapon: { id: 'dagger_swift', name: 'Adaga Veloz', icon: '🗡️', type: 'weapon', atk: 4, spd: 3, desc: 'Afiada como a morte.', val: 22 },
+    attacks: [
+      { name: 'Punhalada', dmgMult: 1.0, mpCost: 0, desc: 'Ataque rápido básico', icon: '🗡️' },
+      { name: 'Golpe Duplo', dmgMult: 0.8, hits: 2, mpCost: 0, desc: '2 ataques de 80%', icon: '⚡' },
+      { name: 'Veneno', dmgMult: 0.6, mpCost: 8, poison: true, desc: 'Envenena o alvo', icon: '🐍' },
+      { name: 'Emboscada', dmgMult: 2.5, mpCost: 12, desc: '2.5× dano, ignora 50% DEF', icon: 'ghost' },
+    ],
+    skills: [
+      { name: 'Ataque Furtivo', fn: 'shadowStrike', cost: 12, desc: 'Ignora DEF, dano crítico' },
+      { name: 'Fumaça', fn: 'smokeScreen', cost: 10, desc: 'Evade próx. 2 ataques' },
+      { name: 'Adaga Envenenada', fn: 'poisonDagger', cost: 15, desc: 'Dano massivo continuado' },
+    ]
+  }
+};
+
+const ENEMY_TEMPLATES = [
+  { name: 'Morcego Vampiro', icon: '🦇', hp: 25, atk: 6, def: 2, spd: 7, xp: 20, gold: 8 },
+  { name: 'Rato de Esgoto', icon: '🐀', hp: 20, atk: 5, def: 1, spd: 6, xp: 15, gold: 5 },
+  { name: 'Goblin Comum', icon: '👺', hp: 35, atk: 8, def: 3, spd: 5, xp: 30, gold: 12 },
+  { name: 'Esqueleto Guerreiro', icon: '💀', hp: 45, atk: 10, def: 5, spd: 3, xp: 40, gold: 15 },
+  { name: 'Zumbi Pestilento', icon: '🧟', hp: 60, atk: 9, def: 2, spd: 2, xp: 45, gold: 18 },
+  { name: 'Orc Furioso', icon: '👹', hp: 75, atk: 13, def: 6, spd: 4, xp: 60, gold: 25 },
+  { name: 'Aranha Tecelã', icon: '🕷️', hp: 40, atk: 11, def: 3, spd: 6, xp: 35, gold: 14 }
+];
+
+const BOSS_TEMPLATES = [
+  { name: 'Gorgona Cortante', icon: '🧝‍♀️', hp: 200, atk: 18, def: 10, spd: 8, xp: 200, gold: 100 },
+  { name: 'Lich do Abismo', icon: '🧙‍♂️', hp: 350, atk: 24, def: 12, spd: 6, xp: 500, gold: 300 }
+];
+
+const ITEMS = [
+  { id: 'pot_hp', name: 'Poção de Vida', icon: '🧪', type: 'usable', effect: 'heal_hp', val: 30, desc: 'Restaura 50 HP.', rarity: 'comum' },
+  { id: 'pot_mp', name: 'Poção de Mana', icon: '🧪', type: 'usable', effect: 'heal_mp', val: 30, desc: 'Restaura 30 MP.', rarity: 'comum' },
+  { id: 'sword_steel', name: 'Espada de Aço', icon: '⚔️', type: 'weapon', atk: 10, val: 80, desc: 'Lâmina afiada e balanceada.', rarity: 'incomum' },
+  { id: 'shield_iron', name: 'Escudo de Ferro', icon: '🛡️', type: 'armor', def: 6, val: 60, desc: 'Proteção sólida de metal.', rarity: 'comum' },
+  { id: 'armor_leather', name: 'Gibão de Couro', icon: '👕', type: 'armor', def: 4, spd: 2, val: 50, desc: 'Leve e flexível.', rarity: 'comum' },
+  { id: 'ring_gold', name: 'Anel de Ouro', icon: '💍', type: 'accessory', luk: 5, val: 150, desc: 'Traz uma sorte misteriosa.', rarity: 'raro' },
+  { id: 'staff_fire', name: 'Cajado de Fogo', icon: '🪄', type: 'weapon', atk: 4, mag: 15, val: 200, desc: 'Irradia calor elemental.', rarity: 'raro' },
+  { id: 'dagger_poison', name: 'Adaga de Presa', icon: '🗡️', type: 'weapon', atk: 8, luk: 3, val: 120, desc: 'Goteja veneno letal.', rarity: 'raro' },
+  { id: 'armor_plate', name: 'Armadura de Placas', icon: '🦾', type: 'armor', def: 15, spd: -2, val: 250, desc: 'Defesa intransponível, mas pesada.', rarity: 'epico' },
+  { id: 'relic_abyss', name: 'Olho do Abismo', icon: '👁️', type: 'accessory', mag: 10, atk: 5, val: 500, desc: 'Poder proibido flui através dele.', rarity: 'lendario' }
+];
+
+const SHINE_BUFFS = [
+  { text: 'Você reza no altar e sente seus músculos enrijecerem! (+2 ATK permanente)', run: p => p.atk += 2 },
+  { text: 'Uma aura protetora envolve seu corpo! (+2 DEF permanente)', run: p => p.def += 2 },
+  { text: 'A benção divina clareia sua mente. (+20 Mana máxima)', run: p => { p.maxMp += 20; p.mp += 20; } },
+  { text: 'Sua vitalidade é revigorada! (+20 Vida máxima)', run: p => { p.maxHp += 20; p.hp += 20; } }
+];
+
+// ============================================================
+// VARIÁVEIS GLOBAIS DE ESTADO
+// ============================================================
+let player = {};
+let dungeon = []; // Matriz do andar atual
+let currentX = 0;
+let currentY = 0;
+let floorLevel = 1;
+let selectedClassId = 'warrior';
+let currentRoom = null;
+let activeTargetIndex = 0;
+let activeShield = 0; // Redução percentual ou direta temporária
+let extraDef = 0;
+
+const MAP_SIZE = 6;
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+function selectClass(btn) {
+  document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedClassId = btn.getAttribute('data-class');
+}
+
+function startGame() {
+  const nameInput = document.getElementById('inp-name').value.trim();
+  const pName = nameInput || 'Estrangeiro';
+  const cData = CLASSES[selectedClassId];
+
+  player = {
+    name: pName,
+    classId: selectedClassId,
+    className: cData.name,
+    level: 1,
+    xp: 0,
+    maxXp: 100,
+    hp: cData.hp,
+    maxHp: cData.hp,
+    mp: cData.mp,
+    maxMp: cData.mp,
+    atk: cData.atk,
+    def: cData.def,
+    spd: cData.spd,
+    mag: cData.mag,
+    luk: cData.luk,
+    gold: 50,
+    inventory: [null, null, null, null, null, null, null, null],
+    equipment: { weapon: null, armor: null, accessory: null }
+  };
+
+  // Equipar arma inicial da classe
+  if (cData.weapon) {
+    const w = { ...cData.weapon };
+    player.equipment.weapon = w;
+  }
+
+  floorLevel = 1;
+  generateFloor();
+
+  document.getElementById('screen-title').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+
+  log(`Bem-vindo à masmorra, ${player.name} o ${player.className}!`, 'event');
+  updateUI();
+  enterRoom();
+}
+
+// ============================================================
+// GERAÇÃO DE MASMORRA (PROCEDURAL)
+// ============================================================
+function generateFloor() {
+  dungeon = [];
+  for (let y = 0; y < MAP_SIZE; y++) {
+    dungeon[y] = [];
+    for (let x = 0; x < MAP_SIZE; x++) {
+      dungeon[y][x] = {
+        type: 'wall', // wall ou floor
+        visited: false,
+        roomType: 'empty', // entry, empty, monster, boss, treasure, stairs, shop, shrine, trap
+        enemies: [],
+        loot: [],
+        description: '',
+        name: 'Corredor Escuro',
+        icon: '🧱',
+        hasConnectorE: false,
+        hasConnectorS: false
+      };
+    }
+  }
+
+  // Caminho garantido simples usando algoritmo random-walk modificado
+  let x = Math.floor(Math.random() * (MAP_SIZE - 2)) + 1;
+  let y = Math.floor(Math.random() * (MAP_SIZE - 2)) + 1;
+  currentX = x;
+  currentY = y;
+
+  dungeon[y][x].type = 'floor';
+  dungeon[y][x].roomType = 'entry';
+  dungeon[y][x].name = 'Portal de Entrada';
+  dungeon[y][x].icon = '🚪';
+  dungeon[y][x].description = 'O portal rúnico brilha fracamente às suas costas. Não há como voltar.';
+  dungeon[y][x].visited = true;
+
+  let floorRooms = [];
+  floorRooms.push({ x, y });
+
+  let totalRooms = 12 + floorLevel * 2;
+  let attempts = 0;
+
+  while (floorRooms.length < totalRooms && attempts < 400) {
+    attempts++;
+    const current = floorRooms[Math.floor(Math.random() * floorRooms.length)];
+    const dirs = [{ dx: 0, dy: -1 }, { dx: 1, dy: 0 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }];
+    const d = dirs[Math.floor(Math.random() * dirs.length)];
+    const nx = current.x + d.dx;
+    const ny = current.y + d.dy;
+
+    if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE) {
+      if (dungeon[ny][nx].type === 'wall') {
+        dungeon[ny][nx].type = 'floor';
+        // Conectar logicamente para renderizar conexões visuais
+        if (d.dx === 1) dungeon[current.y][current.x].hasConnectorE = true;
+        if (d.dx === -1) dungeon[ny][nx].hasConnectorE = true;
+        if (d.dy === 1) dungeon[current.y][current.x].hasConnectorS = true;
+        if (d.dy === -1) dungeon[ny][nx].hasConnectorS = true;
+
+        floorRooms.push({ x: nx, y: ny });
+      }
+    }
+  }
+
+  // Distribuição de tipos de salas especiais e perigos
+  let specialRooms = [...floorRooms];
+  // Remove a entrada da lista de especiais
+  specialRooms = specialRooms.filter(r => !(r.x === currentX && r.y === currentY));
+
+  // 1. Escada ou Boss final
+  const endRoom = specialRooms.pop();
+  if (endRoom) {
+    if (floorLevel >= 3) {
+      dungeon[endRoom.y][endRoom.x].roomType = 'boss';
+      dungeon[endRoom.y][endRoom.x].name = 'Câmara do Destino';
+      dungeon[endRoom.y][endRoom.x].icon = '👑';
+      dungeon[endRoom.y][endRoom.x].description = 'O ar está impregnado de morte e magia ancestral. O guardião espera.';
+      populateEnemies(dungeon[endRoom.y][endRoom.x], true);
+    } else {
+      dungeon[endRoom.y][endRoom.x].roomType = 'stairs';
+      dungeon[endRoom.y][endRoom.x].name = 'Escadaria Abissal';
+      dungeon[endRoom.y][endRoom.x].icon = '🪜';
+      dungeon[endRoom.y][endRoom.x].description = 'Degraus de pedra antiga descem em direção à escuridão mais densa.';
+    }
+  }
+
+  // Desordenar salas especiais remanescentes
+  specialRooms.sort(() => Math.random() - 0.5);
+
+  // Colocar 1 Altar por andar
+  const shrineR = specialRooms.pop();
+  if (shrineR) {
+    dungeon[shrineR.y][shrineR.x].roomType = 'shrine';
+    dungeon[shrineR.y][shrineR.x].name = 'Santuário Oculto';
+    dungeon[shrineR.y][shrineR.x].icon = '✨';
+    dungeon[shrineR.y][shrineR.x].description = 'Uma estátua desgastada pelo tempo emana uma energia reconfortante.';
+  }
+
+  // Colocar 1 Mercador por andar
+  const shopR = specialRooms.pop();
+  if (shopR) {
+    dungeon[shopR.y][shopR.x].roomType = 'shop';
+    dungeon[shopR.y][shopR.x].name = 'Bazar do Submundo';
+    dungeon[shopR.y][shopR.x].icon = '⚖️';
+    dungeon[shopR.y][shopR.x].description = 'Um vulto encapuzado oferece mercadorias raras por moedas reluzentes.';
+  }
+
+  // Tesouros
+  let treasureCount = Math.floor(Math.random() * 2) + 1;
+  for (let i = 0; i < treasureCount; i++) {
+    const tr = specialRooms.pop();
+    if (!tr) break;
+    dungeon[tr.y][tr.x].roomType = 'treasure';
+    dungeon[tr.y][tr.x].name = 'Câmara do Tesouro';
+    dungeon[tr.y][tr.x].icon = '💎';
+    dungeon[tr.y][tr.x].description = 'Baús antigos e restos de saques cobrem o chão de pedra úmida.';
+    generateLoot(dungeon[tr.y][tr.x], true);
+  }
+
+  // Armadilhas ocultas
+  let trapCount = Math.floor(Math.random() * 2) + 1;
+  for (let i = 0; i < trapCount; i++) {
+    const tr = specialRooms.pop();
+    if (!tr) break;
+    dungeon[tr.y][tr.x].roomType = 'trap';
+    // O nome permanece comum para ser uma surpresa
+    dungeon[tr.y][tr.x].name = 'Câmara Sombria';
+    dungeon[tr.y][tr.x].icon = '💀';
+    dungeon[tr.y][tr.x].description = 'Há ranhuras suspeitas nas paredes e o chão parece falso.';
+  }
+
+  // Restante viram monstros ou salas vazias narrativas
+  while (specialRooms.length > 0) {
+    const mr = specialRooms.pop();
+    if (Math.random() < 0.65) {
+      dungeon[mr.y][mr.x].roomType = 'monster';
+      dungeon[mr.y][mr.x].name = 'Salão das Sombras';
+      dungeon[mr.y][mr.x].icon = '⚔️';
+      dungeon[mr.y][mr.x].description = 'Olhos hostis brilham através da penumbra.';
+      populateEnemies(dungeon[mr.y][mr.x], false);
+    } else {
+      dungeon[mr.y][mr.x].roomType = 'empty';
+      dungeon[mr.y][mr.x].name = 'Câmara Abandonada';
+      dungeon[mr.y][mr.x].icon = '🕳️';
+      dungeon[mr.y][mr.x].description = 'Apenas poeira e o silêncio sepulcral habitam este aposento.';
+    }
+  }
+}
+
+function populateEnemies(room, isBossFloor) {
+  if (isBossFloor) {
+    const template = BOSS_TEMPLATES[floorLevel - 3] || BOSS_TEMPLATES[BOSS_TEMPLATES.length - 1];
+    room.enemies.push({ ...template, maxHp: template.hp, dead: false });
+  } else {
+    let count = Math.floor(Math.random() * 2) + 1; // 1 a 2 monstros por sala comum
+    if (floorLevel > 1 && Math.random() < 0.3) count = 3;
+    for (let i = 0; i < count; i++) {
+      let t = ENEMY_TEMPLATES[Math.floor(Math.random() * ENEMY_TEMPLATES.length)];
+      // Escalar atributos sutilmente conforme o andar
+      let scale = 1 + (floorLevel - 1) * 0.25;
+      room.enemies.push({
+        name: t.name,
+        icon: t.icon,
+        hp: Math.floor(t.hp * scale),
+        maxHp: Math.floor(t.hp * scale),
+        atk: Math.floor(t.atk * scale),
+        def: Math.floor(t.def * scale),
+        spd: t.spd,
+        xp: Math.floor(t.xp * scale),
+        gold: Math.floor(t.gold * scale),
+        dead: false
+      });
+    }
+  }
+}
+
+function generateLoot(room, highQuality) {
+  // Garantir moedas de ouro livres
+  room.loot.push({ type: 'gold', amount: Math.floor(Math.random() * 15 * floorLevel) + 10 });
+  
+  let itemCount = highQuality ? 2 : 1;
+  for (let i = 0; i < itemCount; i++) {
+    let pool = ITEMS;
+    if (highQuality) {
+      pool = ITEMS.filter(item => item.rarity === 'raro' || item.rarity === 'epico' || item.rarity === 'lendario');
+    }
+    if (pool.length === 0) pool = ITEMS;
+    let itemBase = pool[Math.floor(Math.random() * pool.length)];
+    room.loot.push({ type: 'item', data: { ...itemBase } });
+  }
+}
+
+// ============================================================
+// LÓGICA DE MOVIMENTAÇÃO E EXPLORAÇÃO
+// ============================================================
+function moveDir(dir) {
+  if (hasAliveEnemies()) {
+    log('Você não pode fugir enquanto houver inimigos hostis!', 'danger');
+    return;
+  }
+
+  let targetX = currentX;
+  let targetY = currentY;
+
+  if (dir === 'N') targetY--;
+  if (dir === 'S') targetY++;
+  if (dir === 'E') targetX++;
+  if (dir === 'W') targetX--;
+
+  if (targetX >= 0 && targetX < MAP_SIZE && targetY >= 0 && targetY < MAP_SIZE) {
+    if (dungeon[targetY][targetX].type === 'floor') {
+      currentX = targetX;
+      currentY = targetY;
+      enterRoom();
+    }
+  }
+}
+
+function enterRoom() {
+  currentRoom = dungeon[currentY][currentX];
+  currentRoom.visited = true;
+  activeTargetIndex = 0;
+  extraDef = 0; // Reseta buffs defensivos por turno ao andar
+
+  // Revelar adjacentes no minimapa para exploração dinâmica
+  const adj = [{ dx: 0, dy: -1 }, { dx: 1, dy: 0 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }];
+  adj.forEach(d => {
+    let ax = currentX + d.dx;
+    let ay = currentY + d.dy;
+    if (ax >= 0 && ax < MAP_SIZE && ay >= 0 && ay < MAP_SIZE) {
+      if (dungeon[ay][ax].type === 'floor' && !dungeon[ay][ax].visited) {
+        // Marcado de forma oculta apenas para renderizador saber
+        dungeon[ay][ax].revealed = true;
+      }
+    }
+  });
+
+  // Gatilho de Armadilha
+  if (currentRoom.roomType === 'trap') {
+    currentRoom.roomType = 'empty'; // Desarma
+    let dmg = Math.floor(Math.random() * 10) + 5 + floorLevel * 2;
+    // Tentar mitigar com a Sorte do herói
+    if (Math.random() * 20 < player.luk) {
+      log(`⚠️ Você ativou uma armadilha de dardos, mas seus reflexos rápidos te salvaram!`, 'success');
+      spawnFloatDmg('⚡ Esquivou', false);
+    } else {
+      player.hp -= dmg;
+      log(`⚠️ Uma armadilha de flechas ocultas foi disparada! Você sofreu ${dmg} de dano.`, 'danger');
+      spawnFloatDmg(`-${dmg} HP`, false);
+      checkDeath();
+    }
+  }
+
+  // Auto-gerar saques simples de monstros mortos
+  if (currentRoom.roomType === 'monster' && currentRoom.enemies.length > 0 && currentRoom.loot.length === 0 && !hasAliveEnemies()) {
+    generateLoot(currentRoom, false);
+  }
+
+  // Foco automático no primeiro inimigo vivo
+  findFirstValidTarget();
+
+  log(`Você entrou em: ${currentRoom.name}.`, 'event');
+  
+  // Animação de entrada
+  const sceneEl = document.getElementById('scene-area');
+  sceneEl.classList.remove('room-enter');
+  void sceneEl.offsetWidth; // Forçar reflow CSS
+  sceneEl.classList.add('room-enter');
+
+  closeMenus();
+  updateUI();
+}
+
+function findFirstValidTarget() {
+  if (currentRoom && currentRoom.enemies) {
+    for (let i = 0; i < currentRoom.enemies.length; i++) {
+      if (!currentRoom.enemies[i].dead) {
+        activeTargetIndex = i;
+        return;
+      }
+    }
+  }
+  activeTargetIndex = 0;
+}
+
+function selectTarget(index) {
+  if (currentRoom.enemies[index] && !currentRoom.enemies[index].dead) {
+    activeTargetIndex = index;
+    updateUI();
+  }
+}
+
+function hasAliveEnemies() {
+  return currentRoom && currentRoom.enemies && currentRoom.enemies.some(e => !e.dead);
+}
+
+// ============================================================
+// COMBATE, ATAQUES E COMBINAÇÕES
+// ============================================================
+function toggleAttackMenu() {
+  document.getElementById('skill-menu').classList.remove('open');
+  document.getElementById('attack-menu').classList.toggle('open');
+}
+
+function toggleSkillMenu() {
+  document.getElementById('attack-menu').classList.remove('open');
+  document.getElementById('skill-menu').classList.toggle('open');
+}
+
+function closeMenus() {
+  document.getElementById('attack-menu').classList.remove('open');
+  document.getElementById('skill-menu').classList.remove('open');
+}
+
+function executeAttack(atkIndex) {
+  closeMenus();
+  if (!hasAliveEnemies()) return;
+
+  const cData = CLASSES[player.classId];
+  const atk = cData.attacks[atkIndex];
+  const enemy = currentRoom.enemies[activeTargetIndex];
+
+  if (!enemy || enemy.dead) return;
+
+  if (player.mp < (atk.mpCost || 0)) {
+    log('Mana insuficiente para executar este ataque!', 'danger');
+    return;
+  }
+
+  // Deduzir custo
+  player.mp -= (atk.mpCost || 0);
+
+  // Calcular modificadores básicos de equipamentos
+  let extraAtk = player.equipment.weapon ? (player.equipment.weapon.atk || 0) : 0;
+  let extraMag = player.equipment.weapon ? (player.equipment.weapon.mag || 0) : 0;
+
+  // Lógica de cálculo de dano
+  let baseDmg = player.atk + extraAtk;
+  if (atk.name === 'Míssil Mágico' || player.classId === 'mage') {
+    baseDmg = player.mag + extraMag;
+  }
+
+  let finalDmg = Math.floor(baseDmg * atk.dmgMult) - enemy.def;
+  if (finalDmg < 1) finalDmg = 1;
+
+  // Sorte / Chance Crítica
+  let isCrit = Math.random() * 100 < (player.luk * 3);
+  if (isCrit) {
+    finalDmg = Math.floor(finalDmg * 1.75);
+  }
+
+  // Processar acertos múltiplos (ex: Golpe Duplo do Ladino)
+  let totalHits = atk.hits || 1;
+  let totalDealt = 0;
+
+  for (let h = 0; h < totalHits; h++) {
+    totalDealt += finalDmg;
+  }
+
+  enemy.hp -= totalDealt;
+  if (enemy.hp < 0) enemy.hp = 0;
+
+  let critText = isCrit ? ' 💥CRÍTICO!💥' : '';
+  log(`⚔️ Você usou [${atk.name}] em ${enemy.name}, causando ${totalDealt} de dano.${critText}`, 'player');
+  spawnFloatDmg(`-${totalDealt}`, true);
+
+  // Efeitos colaterais do ataque do herói
+  if (atk.self_dmg) {
+    player.hp -= atk.self_dmg;
+    log(`🩸 Recuo: Você sofreu ${atk.self_dmg} de dano por usar fúria berserker.`, 'danger');
+  }
+  if (atk.def_bonus) {
+    extraDef += atk.def_bonus;
+    log(`🛡️ Postura defensiva adotada (+${atk.def_bonus} DEF neste turno).`, 'success');
+  }
+
+  if (enemy.hp <= 0) {
+    enemy.dead = true;
+    log(`💀 ${enemy.name} foi derrotado!`, 'success');
+    player.xp += enemy.xp;
+    player.gold += enemy.gold;
+    log(`✨ Recebeu +${enemy.xp} XP e 💰 ${enemy.gold} moedas de ouro.`, 'item');
+    findFirstValidTarget();
+    checkLevelUp();
+  }
+
+  // Turno dos inimigos se ainda restarem vivos na sala
+  if (hasAliveEnemies()) {
+    setTimeout(enemiesTurn, 500);
+  } else {
+    // Sala limpa, gerar espólios
+    if (currentRoom.roomType === 'monster' || currentRoom.roomType === 'boss') {
+      generateLoot(currentRoom, currentRoom.roomType === 'boss');
+      if (currentRoom.roomType === 'boss') {
+        triggerVictory();
+      }
+    }
+    updateUI();
+  }
+}
+
+function executeSkill(skillIndex) {
+  closeMenus();
+  if (!hasAliveEnemies()) return;
+
+  const cData = CLASSES[player.classId];
+  const sk = cData.skills[skillIndex];
+
+  if (player.mp < sk.cost) {
+    log('Mana insuficiente para canalizar esta habilidade!', 'danger');
+    return;
+  }
+
+  player.mp -= sk.cost;
+  log(`🔮 Você conjurou a habilidade [${sk.name}]!`, 'player');
+
+  let extraMag = player.equipment.weapon ? (player.equipment.weapon.mag || 0) : 0;
+  let power = player.mag + extraMag;
+
+  // Resolução de efeito por assinatura de string pura das funções de habilidade
+  if (sk.fn === 'brutalStrike') {
+    let enemy = currentRoom.enemies[activeTargetIndex];
+    let dmg = Math.floor((player.atk * 2.2) - enemy.def);
+    if (dmg < 1) dmg = 1;
+    enemy.hp = Math.max(0, enemy.hp - dmg);
+    log(`💥 Golpe devastador atingiu ${enemy.name} causando ${dmg} de dano esmagador.`, 'player');
+    if (enemy.hp <= 0) { enemy.dead = true; log(`💀 ${enemy.name} explodiu em pedaços!`, 'success'); player.xp += enemy.xp; player.gold += enemy.gold; checkLevelUp(); }
+  } 
+  else if (sk.fn === 'warCry') {
+    player.hp = Math.min(player.maxHp, player.hp + 25);
+    extraDef += 4;
+    log(`🛡️ Seu grito ecoa nas profundezas! Recuperou 25 de Vida e ganhou +4 de DEF temporária.`, 'success');
+    spawnFloatDmg('+25 HP', false);
+  } 
+  else if (sk.fn === 'divineShield') {
+    activeShield = 0.75; // Reduz em 75% o próximo ciclo de ataques recebidos
+    log(`✨ Um escudo de luz sagrada se forma ao seu redor. Próximos danos mitigados em 75%!`, 'success');
+  } 
+  else if (sk.fn === 'fireball') {
+    currentRoom.enemies.forEach(e => {
+      if (!e.dead) {
+        let dmg = Math.floor((power * 1.2) + 5);
+        e.hp = Math.max(0, e.hp - dmg);
+        log(`🔥 A onda de fogo queima ${e.name} com ${dmg} de dano elemental.`, 'danger');
+        if (e.hp <= 0) { e.dead = true; player.xp += e.xp; player.gold += e.gold; checkLevelUp(); }
+      }
+    });
+  } 
+  else if (sk.fn === 'drain') {
+    let enemy = currentRoom.enemies[activeTargetIndex];
+    let dmg = Math.floor(power * 1.5);
+    enemy.hp = Math.max(0, enemy.hp - dmg);
+    player.hp = Math.min(player.maxHp, player.hp + dmg);
+    log(`🩸 Sifão de alma! Sugou ${dmg} de Vida de ${enemy.name}.`, 'success');
+    if (enemy.hp <= 0) { e.dead = true; player.xp += enemy.xp; player.gold += enemy.gold; checkLevelUp(); }
+  }
+  else if (sk.fn === 'meteor') {
+    currentRoom.enemies.forEach(e => {
+      if (!e.dead) {
+        let dmg = Math.floor(power * 2.5);
+        e.hp = Math.max(0, e.hp - dmg);
+        log(`☄️ Um fragmento cósmico esmaga ${e.name} causando ${dmg} de dano cósmico!`, 'danger');
+        if (e.hp <= 0) { e.dead = true; player.xp += e.xp; player.gold += e.gold; checkLevelUp(); }
+      }
+    });
+  }
+  else if (sk.fn === 'shadowStrike') {
+    let enemy = currentRoom.enemies[activeTargetIndex];
+    let dmg = Math.floor((player.atk * 1.5) + player.spd); // Escala com velocidade do ladrão
+    enemy.hp = Math.max(0, enemy.hp - dmg); // Ignora defesa por completo
+    log(`🗡️ Das sombras, você perfura um ponto vital de ${enemy.name} causando ${dmg} de dano puro.`, 'player');
+    if (enemy.hp <= 0) { enemy.dead = true; player.xp += enemy.xp; player.gold += enemy.gold; checkLevelUp(); }
+  }
+  else if (sk.fn === 'smokeScreen') {
+    activeShield = 0.90; // Quase intangível temporário
+    log(`💨 Cortina de fumaça! Chance massiva de desviar do contra-ataque imediato.`, 'success');
+  }
+  else if (sk.fn === 'poisonDagger') {
+    let enemy = currentRoom.enemies[activeTargetIndex];
+    let dmg = Math.floor(player.atk + 12);
+    enemy.hp = Math.max(0, enemy.hp - dmg);
+    log(`🐍 Adaga envenenada rasga ${enemy.name} para ${dmg} de dano inicial tóxico.`, 'player');
+    if (enemy.hp <= 0) { enemy.dead = true; player.xp += enemy.xp; player.gold += enemy.gold; checkLevelUp(); }
+  }
+
+  findFirstValidTarget();
+
+  if (hasAliveEnemies()) {
+    setTimeout(enemiesTurn, 500);
+  } else {
+    if (currentRoom.roomType === 'monster' || currentRoom.roomType === 'boss') {
+      generateLoot(currentRoom, currentRoom.roomType === 'boss');
+      if (currentRoom.roomType === 'boss') triggerVictory();
+    }
+    updateUI();
+  }
+}
+
+function enemiesTurn() {
+  if (!hasAliveEnemies() || player.hp <= 0) return;
+
+  currentRoom.enemies.forEach(enemy => {
+    if (!enemy.dead && player.hp > 0) {
+      let extraDefArmor = player.equipment.armor ? (player.equipment.armor.def || 0) : 0;
+      let finalDef = player.def + extraDefArmor + extraDef;
+      let dmg = enemy.atk - finalDef;
+      if (dmg < 1) dmg = 1;
+
+      // Aplicar mitigação de escudo ativo por habilidades especiais
+      if (activeShield > 0) {
+        dmg = Math.floor(dmg * (1 - activeShield));
+      }
+
+      player.hp -= dmg;
+      if (player.hp < 0) player.hp = 0;
+
+      log(`💥 ${enemy.icon} ${enemy.name} ataca você, causando ${dmg} de dano.`, 'enemy');
+      spawnFloatDmg(`-${dmg}`, false);
+      checkDeath();
+    }
+  });
+
+  // Consumir buffs de fim de turno
+  activeShield = 0;
+  extraDef = 0;
+  updateUI();
+}
+
+// ============================================================
+// SISTEMA DE RECOMPENSAS, LOOT E INVENTÁRIO
+// ============================================================
+function takeLoot(index) {
+  const loot = currentRoom.loot[index];
+  if (!loot) return;
+
+  if (loot.type === 'gold') {
+    player.gold += loot.amount;
+    log(` moedas coletadas: +${loot.amount} Ouro.`, 'item');
+    currentRoom.loot.splice(index, 1);
+  } else if (loot.type === 'item') {
+    // Tentar adicionar no primeiro slot vago da mochila
+    let added = false;
+    for (let i = 0; i < player.inventory.length; i++) {
+      if (player.inventory[i] === null) {
+        player.inventory[i] = loot.data;
+        log(`🎒 Guardou na mochila: [${loot.data.name}]`, 'item');
+        currentRoom.loot.splice(index, 1);
+        added = true;
+        break;
+      }
+    }
+    if (!added) {
+      log('Sua mochila está completamente cheia! Use ou descarte algo.', 'danger');
+    }
+  }
+  updateUI();
+}
+
+function useBagSlot(index) {
+  const item = player.inventory[index];
+  if (!item) return;
+
+  if (item.type === 'usable') {
+    if (item.effect === 'heal_hp') {
+      if (player.hp >= player.maxHp) { log('Sua saúde já está no máximo!', 'event'); return; }
+      player.hp = Math.min(player.maxHp, player.hp + 50);
+      log(`🧪 Você bebeu ${item.name} e regenerou 50 pontos de Vida.`, 'success');
+      spawnFloatDmg('+50 HP', false);
+    } else if (item.effect === 'heal_mp') {
+      if (player.mp >= player.maxMp) { log('Sua reserva de mana já está cheia!', 'event'); return; }
+      player.mp = Math.min(player.maxMp, player.mp + 30);
+      log(`🧪 Você bebeu ${item.name} e regenerou 30 pontos de Mana.`, 'success');
+      spawnFloatDmg('+30 MP', false);
+    }
+    player.inventory[index] = null; // Consumido
+  } else if (item.type === 'weapon' || item.type === 'armor' || item.type === 'accessory') {
+    // Mecânica de equipar e alternar slot vago
+    let typeKey = item.type;
+    let currentlyEquipped = player.equipment[typeKey];
+    player.equipment[typeKey] = item;
+    player.inventory[index] = currentlyEquipped; // Retorna o antigo para a mochila ou anula se vago
+    log(`🛡️ Você equipou: [${item.name}].`, 'event');
+  }
+  hideTooltip();
+  updateUI();
+}
+
+function unequipSlot(typeKey) {
+  let item = player.equipment[typeKey];
+  if (!item) return;
+
+  // Achar vaga na bolsa
+  let added = false;
+  for (let i = 0; i < player.inventory.length; i++) {
+    if (player.inventory[i] === null) {
+      player.inventory[i] = item;
+      player.equipment[typeKey] = null;
+      log(`🎒 Removeu equipamento [${item.name}] para a mochila.`, 'event');
+      added = true;
+      break;
+    }
+  }
+  if (!added) {
+    log('Sem espaço na mochila para desequipar o item!', 'danger');
+  }
+  hideTooltip();
+  updateUI();
+}
+
+function usePotion() {
+  // Atalho inteligente na barra de ferramentas rápida procurando por poções de vida
+  let index = player.inventory.findIndex(i => i && i.id === 'pot_hp');
+  if (index !== -1) {
+    useBagSlot(index);
+  } else {
+    log('Você não carrega nenhuma Poção de Vida imediata na mochila!', 'danger');
+  }
+}
+
+function interactShrine() {
+  if (currentRoom.roomType === 'shrine') {
+    currentRoom.roomType = 'empty'; // Consumido
+    let b = SHINE_BUFFS[Math.floor(Math.random() * SHINE_BUFFS.length)];
+    b.run(player);
+    log(`✨ ${b.text}`, 'success');
+    currentRoom.description = 'O altar agora repousa em silêncio inerte. Suas energias foram absorvidas.';
+    updateUI();
+  }
+}
+
+function buyShopItem(itemIndex, cost) {
+  if (player.gold < cost) {
+    log('Você não possui ouro suficiente para esta transação!', 'danger');
+    return;
+  }
+  
+  let added = false;
+  let itemBase = ITEMS[itemIndex];
+  for (let i = 0; i < player.inventory.length; i++) {
+    if (player.inventory[i] === null) {
+      player.inventory[i] = { ...itemBase };
+      player.gold -= cost;
+      log(`💰 Compra realizada: Adquiriu [${itemBase.name}] por ${cost} ouro.`, 'success');
+      added = true;
+      break;
+    }
+  }
+  if (!added) {
+    log('Mochila cheia! Libere espaço antes de comprar mercadorias.', 'danger');
+  }
+  updateUI();
+}
+
+function useStairs() {
+  if (currentRoom.roomType === 'stairs') {
+    floorLevel++;
+    generateFloor();
+    enterRoom();
+    log(`🪜 Você desceu mais fundo na escuridão. Bem-vindo ao Andar ${floorLevel}!`, 'event');
+  }
+}
+
+// ============================================================
+// VALIDAÇÕES, NÍVEIS E PROGRESSO
+// ============================================================
+function checkLevelUp() {
+  if (player.xp >= player.maxXp) {
+    player.xp -= player.maxXp;
+    player.level++;
+    player.maxXp = Math.floor(player.maxXp * 1.5);
+    
+    // Incrementos de escalonamento fixos nativos
+    player.maxHp += 15;
+    player.maxMp += 10;
+    player.hp = player.maxHp;
+    player.mp = player.maxMp;
+    player.atk += 2;
+    player.def += 1;
+    player.spd += 1;
+    if (player.classId === 'mage') player.mag += 3;
+    else player.mag += 1;
+
+    document.getElementById('levelup-text').innerHTML = `
+      Parabéns Herói! Você alcançou o <strong>Nível ${player.level}</strong>!<br><br>
+      ❤️ Vida máxima aumentada!<br>
+      💧 Mana restaurada e expandida!<br>
+      ⚔️ Atributos de Combate amplificados!
+    `;
+    document.getElementById('modal-levelup').classList.add('active');
+  }
+}
+
+function closeLevelUp() {
+  document.getElementById('modal-levelup').classList.remove('active');
+  updateUI();
+}
+
+function checkDeath() {
+  if (player.hp <= 0) {
+    document.getElementById('modal-death').classList.add('active');
+  }
+}
+
+function triggerVictory() {
+  document.getElementById('victory-text').innerHTML = `
+    <strong>O Abismo foi Conquistado!</strong><br><br>
+    Com bravura e determinação incomparáveis, <strong>${player.name}</strong> derrotou as forças ancestrais que habitavam os confins mais sombrios.<br><br>
+    Sua lenda ecoará pela eternidade!
+  `;
+  document.getElementById('modal-victory').classList.add('active');
+}
+
+// ============================================================
+// SISTEMA DE INTERFACE GRÁFICA (RENDERIZADOR UI)
+// ============================================================
+function updateUI() {
+  // Dados textuais básicos do herói
+  document.getElementById('ui-pname').innerText = player.name;
+  
+  let extraAtkW = player.equipment.weapon ? (player.equipment.weapon.atk || 0) : 0;
+  let extraMagW = player.equipment.weapon ? (player.equipment.weapon.mag || 0) : 0;
+  let extraDefA = player.equipment.armor ? (player.equipment.armor.def || 0) : 0;
+  let extraSpdW = player.equipment.weapon ? (player.equipment.weapon.spd || 0) : 0;
+  let extraSpdA = player.equipment.armor ? (player.equipment.armor.spd || 0) : 0;
+  let extraLukAcc = player.equipment.accessory ? (player.equipment.accessory.luk || 0) : 0;
+
+  document.getElementById('ui-pclass').innerText = `${player.className} — Nível ${player.level}`;
+  document.getElementById('ui-hp').innerText = `${player.hp}/${player.maxHp}`;
+  document.getElementById('ui-mp').innerText = `${player.mp}/${player.maxMp}`;
+  document.getElementById('ui-xp').innerText = `${player.xp}/${player.maxXp}`;
+
+  // Barras dinâmicas
+  document.getElementById('bar-hp').style.width = `${(player.hp / player.maxHp) * 100}%`;
+  document.getElementById('bar-mp').style.width = `${(player.mp / player.maxMp) * 100}%`;
+  document.getElementById('bar-xp').style.width = `${(player.xp / player.maxXp) * 100}%`;
+
+  // Matriz de Atributos Totais (Base + Equipamentos)
+  document.getElementById('ui-atk').innerText = player.atk + extraAtkW;
+  document.getElementById('ui-def').innerText = player.def + extraDefA;
+  document.getElementById('ui-spd').innerText = player.spd + extraSpdW + extraSpdA;
+  document.getElementById('ui-mag').innerText = player.mag + extraMagW;
+  document.getElementById('ui-luk').innerText = player.luk + extraLukAcc;
+  document.getElementById('ui-gold').innerText = player.gold;
+
+  document.getElementById('ui-floor').innerText = `Andar ${floorLevel}`;
+  document.getElementById('ui-depth').innerText = `Profundidade: ${floorLevel * 150}m`;
+
+  // Renderizar Sala Central Atual
+  document.getElementById('scene-icon').innerText = currentRoom.icon;
+  document.getElementById('scene-title').innerText = currentRoom.name;
+  document.getElementById('scene-badge').innerText = `X:${currentX}, Y:${currentY}`;
+  
+  let descHtml = currentRoom.description;
+  
+  // Customizações interativas no bloco descritivo narrativo
+  if (currentRoom.roomType === 'shrine') {
+    descHtml += `<br><br><button class="btn btn-heal" onclick="interactShrine()"> Pray/Rezar no Altar 🌟</button>`;
+  }
+  if (currentRoom.roomType === 'stairs') {
+    descHtml += `<br><br><button class="btn btn-skill" onclick="useStairs()"> Descer Escadaria 🪵</button>`;
+  }
+  if (currentRoom.roomType === 'shop') {
+    descHtml += `<br><br><strong>Itens à Venda:</strong><div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <button class="btn" style="font-size:12px" onclick="buyShopItem(0, 25)">🧪 Poção Vida (25g)</button>
+      <button class="btn" style="font-size:12px" onclick="buyShopItem(1, 25)">🧪 Poção Mana (25g)</button>
+      <button class="btn" style="font-size:12px" onclick="buyShopItem(2, 70)">⚔️ Espada Aço (70g)</button>
+      <button class="btn" style="font-size:12px" onclick="buyShopItem(5, 120)">💍 Anel Sorte (120g)</button>
+    </div>`;
+  }
+
+  document.getElementById('scene-desc').innerHTML = descHtml;
+
+  // Inimigos
+  const wrapperEnemies = document.getElementById('enemies-display');
+  wrapperEnemies.innerHTML = '';
+  
+  let hasBoss = false;
+  let bossRef = null;
+
+  currentRoom.enemies.forEach((e, idx) => {
+    if (currentRoom.roomType === 'boss') {
+      hasBoss = true;
+      bossRef = e;
+    }
+    
+    let isTargeted = idx === activeTargetIndex && !e.dead;
+    let card = document.createElement('div');
+    card.className = `enemy-card ${e.dead ? 'dead' : ''} ${isTargeted ? 'targeted' : ''}`;
+    card.onclick = () => selectTarget(idx);
+
+    card.innerHTML = `
+      <span class="enemy-icon">${e.dead ? '💀' : e.icon}</span>
+      <div class="enemy-name">${e.name}</div>
+      <div class="enemy-hp-bar">
+        <div class="enemy-hp-fill" style="width: ${(e.hp / e.maxHp) * 100}%"></div>
+      </div>
+      <div style="font-size:10px;color:#888;margin-top:2px">${e.hp}/${e.maxHp} HP</div>
+    `;
+    wrapperEnemies.appendChild(card);
+  });
+
+  // Barra dedicada superior de vida do Chefão de Andar
+  const bossBar = document.getElementById('boss-bar');
+  if (hasBoss && bossRef && !bossRef.dead) {
+    bossBar.style.display = 'block';
+    document.getElementById('boss-name').innerText = `⚠️ CHEFE: ${bossRef.name} ⚠️`;
+    document.getElementById('boss-hp-fill').style.width = `${(bossRef.hp / bossRef.maxHp) * 100}%`;
+  } else {
+    bossBar.style.display = 'none';
+  }
+
+  // Saques e Espólios caídos na sala
+  const wrapperLoot = document.getElementById('room-loot');
+  wrapperLoot.innerHTML = '';
+  currentRoom.loot.forEach((l, idx) => {
+    let div = document.createElement('div');
+    div.className = 'loot-item';
+    div.onclick = () => takeLoot(idx);
+    if (l.type === 'gold') {
+      div.innerHTML = `💰 saco de ouro [${l.amount}g]`;
+    } else {
+      div.innerHTML = `${l.data.icon} Coletar ${l.data.name}`;
+    }
+    wrapperLoot.appendChild(div);
+  });
+
+  // Painéis Estáticos de Controle do D-PAD de Navegação por Matriz
+  document.getElementById('dir-N').disabled = (currentY <= 0 || dungeon[currentY - 1][currentX].type !== 'floor' || hasAliveEnemies());
+  document.getElementById('dir-S').disabled = (currentY >= MAP_SIZE - 1 || dungeon[currentY + 1][currentX].type !== 'floor' || hasAliveEnemies());
+  document.getElementById('dir-E').disabled = (currentX >= MAP_SIZE - 1 || dungeon[currentY][currentX + 1].type !== 'floor' || hasAliveEnemies());
+  document.getElementById('dir-W').disabled = (currentX <= 0 || dungeon[currentY][currentX - 1].type !== 'floor' || hasAliveEnemies());
+
+  // Atualizar menus flutuantes dinâmicos de habilidades e ataques rápidos de classe
+  const cData = CLASSES[player.classId];
+  
+  const atkMenu = document.getElementById('attack-menu');
+  atkMenu.innerHTML = '';
+  cData.attacks.forEach((atk, idx) => {
+    let opt = document.createElement('div');
+    opt.className = 'attack-option';
+    opt.onclick = () => executeAttack(idx);
+    opt.innerHTML = `
+      <span>${atk.icon} <strong>${atk.name}</strong></span>
+      <span class="atk-dmg">${atk.desc} ${atk.mpCost ? `<span class="atk-mp">💧${atk.mpCost}</span>` : ''}</span>
+    `;
+    atkMenu.appendChild(opt);
+  });
+
+  const skMenu = document.getElementById('skill-menu');
+  skMenu.innerHTML = '';
+  cData.skills.forEach((sk, idx) => {
+    let opt = document.createElement('div');
+    opt.className = 'attack-option';
+    opt.onclick = () => executeSkill(idx);
+    opt.innerHTML = `
+      <span>🔮 <strong>${sk.name}</strong></span>
+      <span class="atk-dmg">${sk.desc} <span class="atk-mp" style="color:#9b59b6">💧${sk.cost}</span></span>
+    `;
+    skMenu.appendChild(opt);
+  });
+
+  // Habilitar ou apagar botões mestres de ação de combate conforme presença de alvos válidos
+  document.getElementById('btn-attack').disabled = !hasAliveEnemies();
+  document.getElementById('btn-skill').disabled = !hasAliveEnemies();
+
+  // Renderizar Grade Modular do Inventário e Equipamento Lateral Direito
+  renderSlots();
+  renderMinimap();
+}
+
+function renderSlots() {
+  // 1. Slots de Equipamentos Fixos
+  const eqWrapper = document.getElementById('equip-slots');
+  eqWrapper.innerHTML = '';
+  
+  const types = [
+    { key: 'weapon', label: 'Arma', icon: '⚔️' },
+    { key: 'armor', label: 'Armadura', icon: '👕' },
+    { key: 'accessory', label: 'Acessório', icon: '💍' }
+  ];
+
+  types.forEach(t => {
+    let slot = document.createElement('div');
+    let item = player.equipment[t.key];
+    if (item) {
+      slot.className = 'inv-slot equipped filled';
+      slot.onclick = () => unequipSlot(t.key);
+      slot.onmouseenter = (e) => showTooltip(item, e);
+      slot.onmouseleave = hideTooltip;
+      slot.innerHTML = `<span class="item-icon">${item.icon}</span><span class="item-name">${item.name}</span><span class="equipped-tag">E</span>`;
+    } else {
+      slot.className = 'inv-slot';
+      slot.style.borderStyle = 'dashed';
+      slot.style.opacity = '0.3';
+      slot.innerHTML = `<span style="font-size:11px;color:var(--text2)">${t.icon}<br>${t.label}</span>`;
+    }
+    eqWrapper.appendChild(slot);
+  });
+
+  // 2. Slots Dinâmicos da Mochila (Bag)
+  const bagWrapper = document.getElementById('bag-slots');
+  bagWrapper.innerHTML = '';
+  for (let i = 0; i < player.inventory.length; i++) {
+    let slot = document.createElement('div');
+    let item = player.inventory[i];
+    if (item) {
+      slot.className = 'inv-slot filled';
+      slot.onclick = () => useBagSlot(i);
+      slot.onmouseenter = (e) => showTooltip(item, e);
+      slot.onmouseleave = hideTooltip;
+      slot.innerHTML = `<span class="item-icon">${item.icon}</span><span class="item-name">${item.name}</span>`;
+    } else {
+      slot.className = 'inv-slot';
+      slot.style.borderStyle = 'dashed';
+      slot.style.opacity = '0.2';
+    }
+    bagWrapper.appendChild(slot);
+  }
+}
+
+function renderMinimap() {
+  const mapEl = document.getElementById('minimap');
+  mapEl.innerHTML = '';
+  mapEl.style.gridTemplateColumns = `repeat(${MAP_SIZE}, 20px)`;
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      let cellData = dungeon[y][x];
+      let cell = document.createElement('div');
+      cell.className = 'mm-cell';
+
+      if (x === currentX && y === currentY) {
+        cell.className += ' current';
+        cell.innerText = '🧙‍♂️';
+      } else if (cellData.visited || cellData.revealed) {
+        cell.className += ` ${cellData.roomType}`;
+        if (cellData.type === 'wall') cell.className += ' wall';
+        else cell.className += ' floor';
+
+        // Marcadores de ícones visuais pequenos em cima do mapa revelado
+        if (cellData.roomType === 'stairs') cell.innerText = '🪜';
+        if (cellData.roomType === 'treasure') cell.innerText = '💎';
+        if (cellData.roomType === 'boss') cell.innerText = '👑';
+        if (cellData.roomType === 'shop') cell.innerText = '⚖️';
+        if (cellData.roomType === 'shrine') cell.innerText = '✨';
+      } else {
+        cell.className += ' fog';
+      }
+
+      // Adicionar conectores estéticos para salas adjacentes geradas no labirinto
+      if (cellData.hasConnectorE && (cellData.visited || cellData.revealed)) {
+        let conn = document.createElement('div');
+        conn.className = `mm-connector-h ${cellData.visited ? 'active' : ''}`;
+        cell.appendChild(conn);
+      }
+      if (cellData.hasConnectorS && (cellData.visited || cellData.revealed)) {
+        let conn = document.createElement('div');
+        conn.className = `mm-connector-v ${cellData.visited ? 'active' : ''}`;
+        cell.appendChild(conn);
+      }
+
+      mapEl.appendChild(cell);
+    }
+  }
+}
+
+// ============================================================
+// AUXILIARES VISUAIS, LOGS E PARTÍCULAS
+// ============================================================
+function log(msg, type) {
+  const area = document.getElementById('log-area');
+  let entry = document.createElement('div');
+  entry.className = `log-entry ${type || ''}`;
+  entry.innerHTML = `• ${msg}`;
+  area.appendChild(entry);
+  area.scrollTop = area.scrollHeight; // Auto-scrolling continuo do terminal
+}
+
+function spawnFloatDmg(text, isToEnemy) {
+  let div = document.createElement('div');
+  div.className = 'dmg-float';
+  div.innerText = text;
+
+  // Direcionar coordenadas com base no painel que originou o dano
+  if (isToEnemy) {
+    div.style.color = 'var(--red2)';
+    div.style.left = `${window.innerWidth / 2 + (Math.random() * 80 - 40)}px`;
+    div.style.top = `${window.innerHeight / 3 + (Math.random() * 60 - 30)}px`;
+  } else {
+    div.style.color = text.includes('+') ? 'var(--green)' : '#ff5555';
+    div.style.left = `${140 + (Math.random() * 40 - 20)}px`;
+    div.style.top = `${window.innerHeight / 4 + (Math.random() * 40 - 20)}px`;
+  }
+
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 1200);
+}
+
+function showTooltip(item, e) {
+  const tt = document.getElementById('tooltip');
+  
+  let stats = '';
+  if (item.atk) stats += `⚔️ Atq: +${item.atk}  `;
+  if (item.def) stats += `🛡️ Def: +${item.def}  `;
+  if (item.mag) stats += `✨ Mag: +${item.mag}  `;
+  if (item.spd) stats += `🏃 Vel: +${item.spd}  `;
+  if (item.luk) stats += `🍀 Sor: +${item.luk}  `;
+
+  let rarityLabel = item.rarity ? `<div class="rarity-${item.rarity}" style="font-size:10px;margin-top:2px;font-style:italic">${item.rarity.toUpperCase()}</div>` : '';
+
+  tt.innerHTML = `
+    <div class="tooltip-name">${item.icon} ${item.name}</div>
+    ${rarityLabel}
+    <div class="tooltip-desc">${item.desc}</div>
+    ${stats ? `<div class="tooltip-stat">${stats}</div>` : ''}
+    ${item.val ? `<div style="color:#888;font-size:11px;margin-top:4px">Valor: ${item.val}💰</div>` : ''}
+  `;
+  tt.style.display = 'block';
+  moveTip(e);
+}
+
+function moveTip(e) {
+  const tt = document.getElementById('tooltip');
+  tt.style.left = Math.min(e.clientX + 12, window.innerWidth - 220) + 'px';
+  tt.style.top = Math.min(e.clientY + 12, window.innerHeight - 120) + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+document.addEventListener('mousemove', e => {
+  if (document.getElementById('tooltip').style.display === 'block') moveTip(e);
+});
+
+// ============================================================
+// PARTÍCULAS
+// ============================================================
+function createSparks() {
+  const container = document.getElementById('sparks');
+  if (!container) return;
+  for (let i = 0; i < 30; i++) {
+    let spark = document.createElement('div');
+    spark.className = 'spark';
+    spark.style.left = `${Math.random() * 100}vw`;
+    spark.style.top = `${Math.random() * 100}vh`;
+    spark.style.animationDelay = `${Math.random() * 4}s`;
+    spark.style.animationDuration = `${Math.random() * 3 + 3}s`;
+    container.appendChild(spark);
+  }
+}
+
+window.onload = () => {
+  createSparks();
+};
+</script>
+</body>
+</html>
