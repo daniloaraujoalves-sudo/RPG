@@ -1,1 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Masmorras do Abismo</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<!-- TELA INICIAL -->
+<div id="screen-title" class="screen active">
+  <div class="title-particles" id="sparks"></div>
+  <div class="title-sigil">⚔️</div>
+  <div class="title-main">Masmorras do Abismo</div>
+  <div class="title-sub">Uma jornada sem retorno</div>
+  <div class="title-form">
+    <input type="text" id="inp-name" class="title-input" placeholder="Nome do Herói" maxlength="18">
+    <div class="class-select" id="class-select">
+      <button class="class-btn selected" data-class="warrior" onclick="selectClass(this)">
+        <span class="class-icon">🛡️</span>Guerreiro
+      </button>
+      <button class="class-btn" data-class="mage" onclick="selectClass(this)">
+        <span class="class-icon">🔮</span>Mago
+      </button>
+      <button class="class-btn" data-class="rogue" onclick="selectClass(this)">
+        <span class="class-icon">🗡️</span>Ladino
+      </button>
+    </div>
+    <button class="btn-start" onclick="startGame()">Entrar na Masmorra</button>
+  </div>
+</div>
+
+<!-- TELA DO JOGO -->
+<div id="screen-game" class="screen">
+  <!-- PAINEL ESQUERDO -->
+  <div class="panel-left">
+    <div>
+      <div class="player-name" id="ui-pname">Herói</div>
+      <div class="player-class" id="ui-pclass">Guerreiro — Nível 1</div>
+    </div>
+
+    <div>
+      <div class="stat-row">
+        <div class="stat-label"><span>❤️ Vida</span><span id="ui-hp">100/100</span></div>
+        <div class="bar-track"><div class="bar-fill bar-hp" id="bar-hp" style="width:100%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label"><span>💧 Mana</span><span id="ui-mp">50/50</span></div>
+        <div class="bar-track"><div class="bar-fill bar-mp" id="bar-mp" style="width:100%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label"><span>✨ XP</span><span id="ui-xp">0/100</span></div>
+        <div class="bar-track"><div class="bar-fill bar-xp" id="bar-xp" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Atributos</div>
+      <div class="stat-grid">
+        <div class="stat-item"><span>⚔️ Atq</span><span id="ui-atk">10</span></div>
+        <div class="stat-item"><span>🛡️ Def</span><span id="ui-def">5</span></div>
+        <div class="stat-item"><span>🏃 Vel</span><span id="ui-spd">5</span></div>
+        <div class="stat-item"><span>✨ Mag</span><span id="ui-mag">2</span></div>
+        <div class="stat-item"><span>🍀 Sor</span><span id="ui-luk">3</span></div>
+        <div class="stat-item"><span>💰 Gold</span><span id="ui-gold">0</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Mapa — <span id="ui-floor">Andar 1</span></div>
+      <div class="minimap-wrap">
+        <div id="minimap" class="minimap"></div>
+      </div>
+      <div class="minimap-legend" id="minimap-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#c9a227"></div> Você</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#400010"></div> Boss</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2a2000"></div> Tesouro</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0a2040"></div> Escada</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0e080a"></div> Neblina</div>
+      </div>
+    </div>
+
+    <div class="depth-label" id="ui-depth">Profundidade: 1</div>
+  </div>
+
+  <!-- PAINEL CENTRAL -->
+  <div class="panel-center">
+    <div class="scene-area" id="scene-area">
+      <div class="boss-bar" id="boss-bar">
+        <div class="boss-name" id="boss-name">BOSS</div>
+        <div class="boss-hp-track"><div class="boss-hp-fill" id="boss-hp-fill" style="width:100%"></div></div>
+      </div>
+      <div class="scene-header">
+        <span id="scene-icon">🚪</span>
+        <span id="scene-title">Câmara de Entrada</span>
+        <span class="floor-badge" id="scene-badge">Sala 1</span>
+      </div>
+      <div class="scene-desc" id="scene-desc">Você adentra a masmorra.</div>
+      <div class="enemies-display" id="enemies-display"></div>
+      <div class="room-loot" id="room-loot"></div>
+    </div>
+
+    <div class="log-area" id="log-area"></div>
+
+    <!-- BARRA DE AÇÕES -->
+    <div class="action-bar" id="action-bar">
+      <!-- Grupo Atacar -->
+      <div class="btn-group" id="group-attack">
+        <div class="attack-menu" id="attack-menu"></div>
+        <button class="btn btn-attack" id="btn-attack" onclick="toggleAttackMenu()">⚔️ Atacar ▾</button>
+      </div>
+
+      <!-- Grupo Habilidade -->
+      <div class="btn-group" id="group-skill">
+        <div class="attack-menu" id="skill-menu"></div>
+        <button class="btn btn-skill" id="btn-skill" onclick="toggleSkillMenu()">✨ Habilidade ▾</button>
+      </div>
+
+      <button class="btn btn-heal" id="btn-heal" onclick="usePotion()">🧪 Poção</button>
+
+      <span style="flex:1"></span>
+
+      <!-- D-PAD de direção -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div class="direction-pad" id="direction-pad">
+          <div></div>
+          <button class="dir-btn" id="dir-N" onclick="moveDir('N')" disabled>▲<span class="dir-label">Norte</span></button>
+          <div></div>
+          <button class="dir-btn" id="dir-W" onclick="moveDir('W')" disabled>◄<span class="dir-label">Oeste</span></button>
+          <div style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted)">✦</div>
+          <button class="dir-btn" id="dir-E" onclick="moveDir('E')" disabled>►<span class="dir-label">Leste</span></button>
+          <div></div>
+          <button class="dir-btn" id="dir-S" onclick="moveDir('S')" disabled>▼<span class="dir-label">Sul</span></button>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL DIREITO -->
+  <div class="panel-right">
+    <div class="panel-title">Equipamentos</div>
+    <div class="inv-slots" id="equip-slots"></div>
+    <div class="panel-title" style="margin-top:8px">Mochila</div>
+    <div class="inv-slots" id="bag-slots"></div>
+  </div>
+</div>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modal-death">
+  <div class="modal-box">
+    <div class="modal-title death">☠️ Você Morreu</div>
+    <div class="modal-text" id="death-text">Sua chama se apagou nas profundezas...</div>
+    <button class="modal-btn" onclick="location.reload()">Recomeçar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-levelup">
+  <div class="modal-box">
+    <div class="modal-title levelup">⬆️ Nível Acima!</div>
+    <div class="modal-text" id="levelup-text"></div>
+    <button class="modal-btn" onclick="closeLevelUp()">Continuar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-victory">
+  <div class="modal-box">
+    <div class="modal-title victory">🏆 Vitória!</div>
+    <div class="modal-text" id="victory-text"></div>
+    <button class="modal-btn" onclick="location.reload()">Jogar Novamente</button>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="game.js"></script>
+</body>
+</html>
